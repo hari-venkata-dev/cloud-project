@@ -15,6 +15,7 @@ spec:
       containers:
       - name: cloud-app
         image: cloud-app
+        imagePullPolicy: IfNotPresent  
         ports:
         - containerPort: 5000
 ---
@@ -31,4 +32,3 @@ spec:
       port: 5000
       targetPort: 5000
       nodePort: 30007
-      
