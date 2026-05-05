@@ -1,18 +1,25 @@
 # Cloud App – Docker, Kubernetes & CI/CD
 
-This project is a simple cloud-native application that I built to practice how an application moves from local development to a containerized and Kubernetes-based setup.
+This project is a simple cloud-native application that I built to understand how an application moves from local development to a containerized and Kubernetes-based setup.
 
-The goal was not just to run an app, but to understand the full flow — build → containerize → deploy → expose → automate.
+The focus was not just on running an app, but on going through the full flow — build → containerize → deploy → expose → automate — and dealing with real issues along the way.
+
+---
+
+## Architecture
+
+User → Flask App → Docker Container → Kubernetes Deployment → Kubernetes Service
 
 ---
 
 ## What this project does
 
-It’s a small Flask application with a single endpoint:
+It’s a small Flask application with two endpoints:
 
 * `/` → returns **"Cloud App Running!"**
+* `/health` → returns service status (used for Kubernetes health checks)
 
-I used this simple app as a base to focus more on infrastructure and deployment rather than application complexity.
+I intentionally kept the application simple so I could focus more on infrastructure, deployment, and debugging.
 
 ---
 
@@ -32,8 +39,9 @@ I built this step by step:
 1. Created a simple Flask app
 2. Containerized it using Docker
 3. Deployed it into a Kubernetes cluster
-4. Exposed it using a service
+4. Exposed it using a Service
 5. Added a CI pipeline to automate build checks
+6. Added liveness and readiness probes for better Kubernetes health management
 
 ---
 
@@ -76,6 +84,8 @@ http://localhost:5000
 
 ## Kubernetes deployment
 
+The application is deployed using a Kubernetes Deployment and exposed via a Service.
+
 Apply the config:
 
 ```bash
@@ -88,13 +98,13 @@ Check pods:
 kubectl get pods
 ```
 
-Since this is running locally, I used port-forward:
+Since this is running locally, I used port-forward to access it:
 
 ```bash
 kubectl port-forward service/cloud-service 5000:5000
 ```
 
-Then access:
+Then open:
 
 ```
 http://localhost:5000
@@ -106,9 +116,9 @@ http://localhost:5000
 
 I added a GitHub Actions workflow that:
 
-* Runs on every push to main
+* Runs on every push to `main`
 * Installs dependencies
-* Does a basic app check
+* Performs a basic application validation
 * Builds the Docker image
 
 ---
@@ -121,23 +131,25 @@ This was actually the most useful part of the project:
   → Fixed by starting Docker Desktop correctly
 
 * **Kubernetes not connecting**
-  → Had to enable Kubernetes and wait for cluster to be ready
+  → Enabled Kubernetes and waited for the cluster to be ready
 
 * **Image not found (ErrImageNeverPull)**
-  → Fixed by adjusting image tag and pull policy
+  → Fixed by adjusting image tag and image pull policy
 
-* **NodePort not working on localhost**
-  → Used `kubectl port-forward` instead
+* **Service not accessible via NodePort**
+  → Used `kubectl port-forward` for local access
 
 ---
 
 ## What I learned
 
-* How Docker images are built and used
-* How Kubernetes manages pods and deployments
-* Difference between local vs cluster image access
+* How Docker images are built and optimized
+* How Kubernetes manages deployments and pods
+* How health checks (liveness/readiness probes) work
+* Difference between local images and cluster image access
 * How services expose applications
 * Basic CI/CD setup using GitHub Actions
+* How to debug real-world deployment issues
 
 ---
 
@@ -147,11 +159,12 @@ If I extend this project further, I would:
 
 * Split into microservices (Go + Python)
 * Add monitoring (Prometheus/Grafana)
-* Deploy to AWS (EKS)
+* Deploy on AWS (EKS)
 * Use Terraform for infrastructure
+* Add authentication layer
 
 ---
 
 ## Summary
 
-This project helped me understand the full lifecycle of deploying a cloud-native application, including real debugging scenarios that come up when working with Docker and Kubernetes.
+This project helped me understand the full lifecycle of deploying a cloud-native application, including real debugging scenarios that come up when working with Docker and Kubernetes. It also gave me a better understanding of how different components fit together in a production-like setup.
